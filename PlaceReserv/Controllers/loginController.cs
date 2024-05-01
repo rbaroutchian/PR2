@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using PlaceReserv.Controllers;
 
+
 namespace PlaceReserv.Controllers
 {
     [Route("api/[controller]")]
@@ -17,10 +18,13 @@ namespace PlaceReserv.Controllers
     public class LoginController : ControllerBase
     {
         private readonly ILoginService _loginService;
+        
+
 
         public LoginController(ILoginService loginService)
         {
             _loginService = loginService;
+           
         }
 
         [AllowAnonymous]
@@ -34,6 +38,8 @@ namespace PlaceReserv.Controllers
             {
                 // تولید توکن
                 string token = _loginService.GenerateToken(login.Username);
+
+                
 
                 // بازگشت توکن به عنوان نتیجه
                 return Ok(new { token = token });

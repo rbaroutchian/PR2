@@ -5,6 +5,7 @@ using PlaceReserv.Interfaces;
 using PlaceReserv.Models;
 using PlaceReserv.Repository;
 using PlaceReserv.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 
 namespace PlaceReserv.Controllers
@@ -24,6 +25,9 @@ namespace PlaceReserv.Controllers
         }
         [HttpGet("{id}")]
         [Authorize]
+        
+
+
         public async Task<ActionResult<Place>> GetPlace(int id)
         {
             var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
@@ -48,6 +52,9 @@ namespace PlaceReserv.Controllers
 
         [HttpGet]
         [Authorize]
+        
+
+
         public async Task<ActionResult<IEnumerable<Place>>> GetPlaces()
         {
             var places = await _placeRepository.GetAllPlacesAsync();
@@ -56,6 +63,8 @@ namespace PlaceReserv.Controllers
 
         [HttpPost]
         [Authorize]
+        
+
         public async Task<ActionResult<Place>> CreatePlace(Place place)
         {
             await _placeRepository.AddPlaceAsync(place);
@@ -64,6 +73,8 @@ namespace PlaceReserv.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
+        
+
         public async Task<IActionResult> UpdatePlace(int id, Place place)
         {
             if (id != place.Id)
@@ -92,6 +103,8 @@ namespace PlaceReserv.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
+        
+
         public async Task<IActionResult> DeletePlace(int id)
         {
             var place = await _placeRepository.GetPlaceByIdAsync(id);
