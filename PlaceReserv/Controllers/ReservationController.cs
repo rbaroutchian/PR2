@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PlaceReserv.IRepository;
 using PlaceReserv.Models;
 using PlaceReserv.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Dapper;
+using PlaceReserv.Interfaces;
 
 namespace PlaceReserv.Controllers
 {
@@ -17,13 +17,15 @@ namespace PlaceReserv.Controllers
     public class ReservationController : ControllerBase
     {
         private readonly IReservationRepository reservationRepository;
+        private readonly ILoginService _loginService;
 
 
 
-        public ReservationController(IReservationRepository reservationRepository)
+
+        public ReservationController(IReservationRepository reservationRepository, ILoginService loginService)
         {
             this.reservationRepository = reservationRepository;
-
+            _loginService = loginService;
         }
 
 
@@ -31,6 +33,18 @@ namespace PlaceReserv.Controllers
         [Authorize]
         public async Task<ActionResult<Reservation>> GetReservation(int id)
         {
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (token == null)
+            {
+                return Unauthorized("Token not found");
+            }
+
+            var username = _loginService.ValidateToken(token);
+            if (username == null)
+            {
+                return Unauthorized("Invalid token");
+            }
+
             var reservation = await reservationRepository.GetReservationByIdAsync(id);
             if (reservation == null)
             {

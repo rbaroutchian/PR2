@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PlaceReserv.Data;
-using PlaceReserv.IRepository;
 using PlaceReserv.Repository;
 using System.Reflection.Metadata;
 using System.Text;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography;
 using PlaceReserv.Services;
+using PlaceReserv.Interfaces;
 
 
 
@@ -41,6 +41,9 @@ builder.Services.AddScoped<IPlaceRepository, PlaceRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IPlaceService, PlaceService>();
+
 
 
 

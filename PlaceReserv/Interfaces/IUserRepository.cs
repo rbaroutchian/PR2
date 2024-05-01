@@ -1,6 +1,6 @@
 ﻿using PlaceReserv.Models;
 
-namespace PlaceReserv.IRepository
+namespace PlaceReserv.Interfaces
 {
     public interface IUserRepository
     {

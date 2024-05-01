@@ -1,47 +1,48 @@
 ﻿using PlaceReserv.Data;
-using PlaceReserv.IRepository;
 using PlaceReserv.Models;
 using System.ComponentModel.Design;
 using Dapper;
 using System.Data;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using PlaceReserv.Interfaces;
 
 namespace PlaceReserv.Repository
 {
     public class ReservationRepository : IReservationRepository
     {
-        private readonly DatabaseContext dbContext;
+        private readonly DatabaseContext _dbContext;
 
-        public ReservationRepository(DatabaseContext dbContext)
-        {
-            this.dbContext = dbContext;
-        }
+        public ReservationRepository(DatabaseContext dbContext) => _dbContext = dbContext;
+
 
         public async Task<Reservation> GetReservationByIdAsync(int id)
         {
-            using (var connection = dbContext.CreateConnection())
+            var query = "SELECT * FROM Reservations WHERE Id = @Id";
+            using (var connection = _dbContext.CreateConnection())
             {
-                connection.Open();
-                return await connection.QueryFirstOrDefaultAsync<Reservation>("SELECT * FROM Reservations WHERE Id = @Id", new { Id = id });
+                var reserv = await connection.QueryFirstOrDefaultAsync<Reservation>(query, new { Id = id });
+                return reserv;
             }
         }
+        //check for duplicate reservation
         public async Task AddReservationAsync(Reservation reservation)
         {
-            using (var connection = dbContext.CreateConnection())
+            var query1 = "SELECT * FROM Reservations WHERE ReservationDate = @ReservationDate AND PlaceId = @PlaceId";
+            var query2 = "INSERT INTO Reservations (RegistrationDate, ReservationDate, UserId, PlaceId, Amount) " +
+                "VALUES (@RegistrationDate, @ReservationDate, @UserId, @PlaceId, @Amount)";
+            using (var connection = _dbContext.CreateConnection())
             {
-                connection.Open();
                 //Duplicate booking check 
-                var existingReservation = await connection.QueryFirstOrDefaultAsync<Reservation>("SELECT * FROM Reservations WHERE ReservationDate = @ReservationDate AND PlaceId = @PlaceId",
+                var existingReservation = await connection.QueryFirstOrDefaultAsync<Reservation>(query1,
                  new { ReservationDate = reservation.ReservationDate, PlaceId = reservation.PlaceId });
 
                 if (existingReservation != null)
                 {
                     throw new InvalidOperationException("This place is already booked on this date");
                 }
-                var sql = "INSERT INTO Reservations (RegistrationDate, ReservationDate, UserId, PlaceId, Amount) " +
-                "VALUES (@RegistrationDate, @ReservationDate, @UserId, @PlaceId, @Amount)";
-                await connection.ExecuteAsync(sql, reservation);
+
+                await connection.ExecuteAsync(query2, reservation);
 
             }
         }
@@ -49,10 +50,10 @@ namespace PlaceReserv.Repository
 
         public async Task<IEnumerable<Reservation>> GetAllReservationsAsync()
         {
-            using (var connection = dbContext.CreateConnection())
+            var query = "SELECT * FROM Reservations";
+            using (var connection = _dbContext.CreateConnection())
             {
-                connection.Open();
-                return await connection.QueryAsync<Reservation>("SELECT * FROM Reservations");
+                return await connection.QueryAsync<Reservation>(query);
             }
         }
 
@@ -61,27 +62,27 @@ namespace PlaceReserv.Repository
 
         public async Task UpdateReservationAsync(Reservation reservation)
         {
-            using (var connection = dbContext.CreateConnection())
+            var query = "UPDATE Reservations SET RegistrationDate = @RegistrationDate, ReservationDate = @ReservationDate, UserId = @UserId, PlaceId = @PlaceId, Amount = @Amount WHERE Id = @Id";
+            using (var connection = _dbContext.CreateConnection())
             {
-                connection.Open();
-                await connection.ExecuteAsync("UPDATE Reservations SET RegistrationDate = @RegistrationDate, ReservationDate = @ReservationDate, UserId = @UserId, PlaceId = @PlaceId, Amount = @Amount WHERE Id = @Id", reservation);
+                await connection.ExecuteAsync(query, reservation);
             }
         }
 
         public async Task DeleteReservationAsync(int id)
         {
-            using (var connection = dbContext.CreateConnection())
+            var query = "DELETE FROM Reservations WHERE Id = @Id";
+            using (var connection = _dbContext.CreateConnection())
             {
-                connection.Open();
-                await connection.ExecuteAsync("DELETE FROM Reservations WHERE Id = @Id", new { Id = id });
+                await connection.ExecuteAsync(query, new { Id = id });
             }
         }
 
-        public async Task<List<Reservation>> GetReservationsByUserAsync(string userId)
+        public async Task<List<Reservation>> GetReservationsByUserAsync(int userId)
         {
 
             var query = "SELECT * FROM Reservations WHERE UserId = @UserId";
-            using (var connection = dbContext.CreateConnection())
+            using (var connection = _dbContext.CreateConnection())
             {
                 var user = await connection.QueryFirstOrDefaultAsync<Reservation>(query, userId);
                 if (user == null)

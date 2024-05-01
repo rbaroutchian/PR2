@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PlaceReserv.IRepository;
 using PlaceReserv.Models;
 using JWT.Builder;
 using PlaceReserv.Controllers;
 using Microsoft.AspNetCore.Identity;
+using PlaceReserv.Interfaces;
 
 namespace PlaceReserv.Controllers
 {
-    
+
     [ApiController]
     [Route("api/[controller]")]
 

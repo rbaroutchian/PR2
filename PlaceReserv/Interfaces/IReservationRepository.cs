@@ -1,6 +1,6 @@
 ﻿using PlaceReserv.Models;
 
-namespace PlaceReserv.IRepository
+namespace PlaceReserv.Interfaces
 {
     public interface IReservationRepository
     {
@@ -9,8 +9,7 @@ namespace PlaceReserv.IRepository
         public Task AddReservationAsync(Reservation reservation);
         public Task UpdateReservationAsync(Reservation reservation);
         public Task DeleteReservationAsync(int id);
-        public Task<List<Reservation>> GetReservationsByUserAsync(string userId);
-
+        public Task<List<Reservation>> GetReservationsByUserAsync(int userId);
     }
 }
 
